@@ -8,3 +8,6 @@ cmake ..
 mkdir data
 touch ./data/trace.data
 sudo chmod -R 777 ./data/trace.data
+
+git config user.name "nw (remote)"
+git config user.email "neow@utexas.edu"
