@@ -1,4 +1,5 @@
 #include <vector>
+#include <cstdlib>
 
 int main() {
     int v_size = static_cast<int>(1e8);
