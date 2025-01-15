@@ -47,16 +47,29 @@ if [ -s ./data/perf.data ]; then
     
     # Extract data and create CSV
     echo "Event,Samples,Percentage" > ./data/perf_stats.csv
-    sudo -E perf stat -e cache-misses \
+    sudo -E perf stat \
+        -e cache-misses \
         -e cache-references \
         -e l2_rqsts.all_demand_data_rd \
         -e l2_rqsts.demand_data_rd_hit \
         -e l2_rqsts.demand_data_rd_miss \
         -e cpu-cycles \
         -x, \
-        -o ./data/perf_stats.csv \
-        --append \
-        ./build/src/basic_array -DPEBS_FRONTEND 2>&1
+        ./build/src/basic_array -DPEBS_FRONTEND \
+        2>&1 | grep -v "^#" | grep "," | awk -F, '
+        BEGIN { cycles = 0 }
+        {
+            count[$3] = $1  # Store counts for each event
+            if ($3 == "cpu-cycles") {
+                cycles = $1
+            }
+        }
+        END {
+            if (cycles == 0) cycles = 1
+            for (event in count) {
+                printf "%s,%s,%.10f\n", event, count[event], (count[event]/cycles)*100
+            }
+        }' >> ./data/perf_stats.csv
     
     echo "Reports generated:"
     echo "  - ./data/perf_report.txt"
