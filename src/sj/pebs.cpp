@@ -84,10 +84,11 @@ static struct perf_event_mmap_page* perf_setup(__u64 config, __u64 config1, __u6
   attr.precise_ip = 1;
 
   pfd[cpu][type] = perf_event_open(&attr, -1, (cpu + START_CPU), -1, 0);
-  if(pfd[cpu][type] == -1) {
-    printf("perf_event_open\n");
+  if (pfd[cpu][type] == -1) {
+    perror("perf_event_open failed");
+    fprintf(stderr, "cpu=%lld, event type=%llu\n", cpu, type);
+    exit(EXIT_FAILURE);
   }
-  assert(pfd[cpu][type] != -1);
 
   size_t mmap_size = sysconf(_SC_PAGESIZE) * PERF_PAGES;
   struct perf_event_mmap_page *p = (struct perf_event_mmap_page *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, pfd[cpu][type], 0);
